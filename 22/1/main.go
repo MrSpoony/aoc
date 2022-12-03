@@ -30,7 +30,6 @@ func main() {
 	sort.Slice(listChunks, func(i, j int) bool {
 		return listChunks[i] > listChunks[j]
 	})
-	fmt.Println(listChunks)
 	res := sum(listChunks[:3])
 	fmt.Println(maxi)
 	fmt.Println(res)

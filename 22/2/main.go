@@ -13,7 +13,49 @@ func main() {
 	for i, line := range lines {
 		games[i] = strings.Split(line, " ")
 	}
-	res := 0
+	fmt.Println(calculateScore(games))
+	prepare(games)
+	fmt.Println(calculateScore(games))
+}
+
+func prepare(games [][]string) {
+	for i, game := range games {
+		if len(game) != 2 {
+			continue
+		}
+		switch game[1] {
+		case "X":
+			switch game[0] {
+			case "A":
+				games[i][1] = "Z"
+			case "B":
+				games[i][1] = "X"
+			case "C":
+				games[i][1] = "Y"
+			}
+		case "Y":
+			switch game[0] {
+			case "A":
+				games[i][1] = "X"
+			case "B":
+				games[i][1] = "Y"
+			case "C":
+				games[i][1] = "Z"
+			}
+		case "Z":
+			switch game[0] {
+			case "A":
+				games[i][1] = "Y"
+			case "B":
+				games[i][1] = "Z"
+			case "C":
+				games[i][1] = "X"
+			}
+		}
+	}
+}
+
+func calculateScore(games [][]string) (res int) {
 	for _, game := range games {
 		if len(game) != 2 {
 			continue
@@ -48,5 +90,6 @@ func main() {
 			}
 		}
 	}
-	fmt.Println(res)
+
+	return
 }
