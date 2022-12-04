@@ -1,24 +1,20 @@
 fn main() {
     let pairs = include_str!("../input.txt")
         .lines()
-        .map(|line| line.split(",").collect::<Vec<_>>())
+        .map(|line| line.split(","))
         .map(|pairs| {
             pairs
-                .iter()
                 .map(|pair| {
                     pair.split("-")
-                        .collect::<Vec<_>>()
-                        .iter()
                         .map(|pair| pair.parse::<i32>().unwrap())
                         .collect::<Vec<_>>()
                 })
                 .collect::<Vec<_>>()
-        })
-        .collect::<Vec<_>>();
+        });
     println!(
         "{}",
         pairs
-            .iter()
+            .clone()
             .map(
                 |pairs| pairs[0][0] <= pairs[1][0] && pairs[0][1] >= pairs[1][1]
                     || pairs[1][0] <= pairs[0][0] && pairs[1][1] >= pairs[0][1]
@@ -29,7 +25,6 @@ fn main() {
     println!(
         "{}",
         pairs
-            .iter()
             .map(
                 |pairs| pairs[0][1] >= pairs[1][0] && pairs[0][1] <= pairs[1][1]
                     || pairs[1][1] >= pairs[0][0] && pairs[1][1] <= pairs[0][1]

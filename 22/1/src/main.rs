@@ -8,6 +8,6 @@ fn main() {
         })
         .collect::<Vec<i32>>();
     nums.sort_by(|x, y| y.cmp(x));
-    println!("{}", nums.clone().into_iter().max().unwrap());
+    println!("{}", nums.iter().max().unwrap());
     println!("{}", nums[0..3].iter().sum::<i32>());
 }
