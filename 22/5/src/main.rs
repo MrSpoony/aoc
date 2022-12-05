@@ -6,9 +6,7 @@ fn main() {
         .lines()
         .map(|line| {
             line.split(" ")
-                .map(|x| x.parse::<i32>().ok())
-                .filter(|x| x.is_some())
-                .map(|x| x.unwrap())
+                .filter_map(|x| x.parse::<i32>().ok())
                 .collect::<Vec<i32>>()
         })
         .collect::<Vec<Vec<i32>>>();
