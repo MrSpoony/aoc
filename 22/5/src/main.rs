@@ -12,7 +12,8 @@ fn main() {
                 .collect::<Vec<i32>>()
         })
         .collect::<Vec<Vec<i32>>>();
-    let midstacks: Vec<Vec<char>> = text[0]
+    let mut stacks: Vec<Vec<char>> = vec![vec![]; text[0].lines().nth(0).unwrap().len() / 4 + 1];
+    text[0]
         .lines()
         .rev()
         .skip(1)
@@ -21,20 +22,13 @@ fn main() {
                 .enumerate()
                 .filter(|&(i, _)| i % 4 == 1)
                 .map(|(_, v)| v)
-                .collect()
         })
-        .collect();
-    let mut stacks: Vec<Vec<char>> = vec![];
-    for midstack in midstacks {
-        for (i, c) in midstack.iter().enumerate() {
-            if i >= stacks.len() {
-                stacks.push(vec![]);
-            }
-            if *c != ' ' {
-                stacks[i].push(*c);
-            }
-        }
-    }
+        .for_each(|stack| {
+            stack
+                .enumerate()
+                .filter(|(_, c)| *c != ' ')
+                .for_each(|(i, c)| stacks[i].push(c))
+        });
     let mut st1 = stacks.clone();
     let mut st2 = stacks.clone();
     for instruction in instructions {
