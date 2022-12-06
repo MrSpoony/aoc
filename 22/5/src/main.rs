@@ -18,8 +18,7 @@ fn main() {
         .map(|line| {
             line.chars()
                 .enumerate()
-                .filter(|&(i, _)| i % 4 == 1)
-                .map(|(_, v)| v)
+                .filter_map(|(i, v)| if i % 4 == 1 { Some(v) } else { None })
         })
         .for_each(|stack| {
             stack
