@@ -56,11 +56,9 @@ impl Grid {
                 } else {
                     head.y + 1
                 };
-                // tail.x += ((head.x > tail.x) as i32) * 2 - 1;
-                // tail.y += ((head.y > tail.y) as i32) * 2 - 1;
                 self
             }
-            (_, _) => self,
+            (_, _) => unreachable!(),
         };
     }
 
