@@ -11,40 +11,40 @@ fn main() {
         .split("\n\n")
         .map(|x| x.lines().map(|x| x.chars().collect()).collect())
         .collect();
-    let mut res = 0;
-    for (i, pair) in pairs.iter().enumerate() {
-        let part1 = parse_pair(pair[0].clone(), 1, pair[0].len() - 1);
-        let part2 = parse_pair(pair[1].clone(), 1, pair[1].len() - 1);
-        match compare_parts(&part1, &part2) {
-            Ordering::Less => res += i + 1,
-            _ => (),
-        }
-    }
 
     let mut parts = pairs.clone().into_iter().flatten().collect::<Vec<_>>();
-    parts.push("[[2]]".chars().collect());
-    parts.push("[[6]]".chars().collect());
-    parts.sort_by(|a, b| {
-        let p1 = parse_pair(a.clone(), 1, a.len() - 1);
-        let p2 = parse_pair(b.clone(), 1, b.len() - 1);
-        return compare_parts(&p1, &p2);
-    });
-    let idx1: usize = parts
-        .iter()
-        .position(|x| x == &"[[2]]".chars().collect::<Vec<_>>())
-        .unwrap()
-        + 1;
-    let idx2: usize = parts
-        .iter()
-        .position(|x| x == &"[[6]]".chars().collect::<Vec<_>>())
-        .unwrap()
-        + 1;
-    let res2 = idx1 * idx2;
-    println!("{}", res);
-    println!("{}", res2);
+    let additionals: Vec<Vec<char>> = vec!["[[2]]".chars().collect(), "[[6]]".chars().collect()];
+    parts.extend(additionals.clone());
+    parts.sort_by(|a, b| compare_parts(&parse_pair(a.clone()), &parse_pair(b.clone())));
+    println!(
+        "{}",
+        pairs
+            .iter()
+            .enumerate()
+            .filter_map(|(i, pair)| {
+                let x: Vec<_> = pair.iter().map(|x| parse_pair(x.to_vec())).collect();
+                if let Ordering::Less = compare_parts(&x[0], &x[1]) {
+                    Some(i + 1)
+                } else {
+                    None
+                }
+            })
+            .sum::<usize>()
+    );
+    println!(
+        "{}",
+        additionals
+            .into_iter()
+            .map(|a| parts.iter().position(|x| x == &a).unwrap() + 1)
+            .product::<usize>()
+    );
 }
 
-fn parse_pair(s: Vec<char>, start: usize, end: usize) -> Part {
+fn parse_pair(s: Vec<char>) -> Part {
+    return parse_pair_start_end(s.clone(), 1, s.len() - 1);
+}
+
+fn parse_pair_start_end(s: Vec<char>, start: usize, end: usize) -> Part {
     let mut root = Part::List(vec![]);
     let mut starts = vec![];
     for i in start..end {
@@ -52,27 +52,25 @@ fn parse_pair(s: Vec<char>, start: usize, end: usize) -> Part {
         if c == '[' {
             starts.push(i + 1);
         } else if c == ']' {
-            if starts.len() == 1 {
-                if let Part::List(root) = &mut root {
-                    root.push(parse_pair(s.clone(), starts.pop().unwrap(), i));
-                }
-            } else {
+            if starts.len() != 1 {
                 starts.pop();
+                continue;
+            } else if let Part::List(root) = &mut root {
+                root.push(parse_pair_start_end(s.clone(), starts.pop().unwrap(), i));
             }
         } else if c == ',' {
             continue;
         } else {
             if starts.len() != 0 {
                 continue;
-            }
-            let idx = s[i..].iter().position(|&c| c == ',' || c == ']').unwrap();
-            let num = s[i..i + idx]
-                .iter()
-                .collect::<String>()
-                .parse::<i32>()
-                .unwrap();
-            if let Part::List(root) = &mut root {
-                root.push(Part::Num(num));
+            } else if let Part::List(root) = &mut root {
+                root.push(Part::Num(
+                    s[i..i + s[i..].iter().position(|&c| c == ',' || c == ']').unwrap()]
+                        .iter()
+                        .collect::<String>()
+                        .parse::<i32>()
+                        .unwrap(),
+                ));
             }
         }
     }
