@@ -1,0 +1,31 @@
+name: gleam test 2024
+
+on:
+  push:
+    paths:
+      - "24/gleam/*"
+    branches:
+      - master
+      - main
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: "27.1.2"
+          gleam-version: "1.6.2"
+          rebar3-version: "3"
+          # elixir-version: "1.15.4"
+      - name: Download dependencies
+        working-directory: ./24/gleam
+        run: gleam deps download
+      - name: Run unit tests
+        working-directory: ./24/gleam
+        run: gleam test
+      - name: Check formatting
+        working-directory: ./24/gleam
+        run: gleam format --check src test
