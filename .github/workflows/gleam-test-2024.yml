@@ -2,8 +2,6 @@ name: gleam test 2024
 
 on:
   push:
-    paths:
-      - "24/gleam/*"
     branches:
       - master
       - main

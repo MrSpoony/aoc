@@ -3,10 +3,10 @@ import gleam/io
 import gleam/list
 import gleam/order
 import gleam/string
-import simplifile as file
+import simplifile
 
 pub fn main() {
-  let assert Ok(input) = file.read("inputs/input02.txt")
+  let assert Ok(input) = simplifile.read("inputs/input02.txt")
   part1(input) |> int.to_string |> io.println
   part2(input) |> int.to_string |> io.println
 }
