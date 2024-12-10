@@ -1,4 +1,4 @@
-import gleam/bool
+import gleam/bool.{guard}
 import gleam/dict.{type Dict}
 import gleam/int
 import gleam/io
@@ -19,18 +19,15 @@ type Pos {
 }
 
 fn parse_fold(input: String, initial: a, f: fn(a, Dict(Pos, Int), Pos) -> a) {
-  let height = input |> string.trim |> string.split("\n") |> list.length
+  let lines = input |> string.trim |> string.split("\n")
+  let height = lines |> list.length
   let width =
-    input
-    |> string.trim
-    |> string.split("\n")
+    lines
     |> list.first
     |> result.unwrap("")
     |> string.length()
   let map =
-    input
-    |> string.trim
-    |> string.split("\n")
+    lines
     |> list.index_fold(dict.new(), fn(acc, line, i) {
       line
       |> string.to_graphemes
@@ -39,18 +36,16 @@ fn parse_fold(input: String, initial: a, f: fn(a, Dict(Pos, Int), Pos) -> a) {
         dict.insert(acc, Pos(i, j), num)
       })
     })
-  list.range(0, height - 1)
-  |> list.fold(initial, fn(acc, i) {
-    list.range(0, width - 1)
-    |> list.fold(acc, fn(acc, j) { f(acc, map, Pos(i, j)) })
-  })
+  // Not sure if I like this syntax
+  use acc, i <- list.fold(list.range(0, height - 1), initial)
+  use acc, j <- list.fold(list.range(0, width - 1), acc)
+  f(acc, map, Pos(i, j))
 }
 
 fn dfs(map: Dict(Pos, Int), pos: Pos, num: Int, vis: Set(Pos), part: Int) {
-  use <- bool.guard(part == 1 && set.contains(vis, pos), #(0, vis))
-  use <- bool.guard(map |> dict.get(pos) |> result.unwrap(-1) != num, #(0, vis))
-  use <- bool.guard(num == 9, #(1, set.insert(vis, pos)))
-  let vis = set.insert(vis, pos)
+  use <- guard(part == 1 && set.contains(vis, pos), #(0, vis))
+  use <- guard(map |> dict.get(pos) |> result.unwrap(-1) != num, #(0, vis))
+  use <- guard(num == 9, #(1, set.insert(vis, pos)))
   let #(right, vis) = dfs(map, Pos(pos.x + 1, pos.y), num + 1, vis, part)
   let #(left, vis) = dfs(map, Pos(pos.x - 1, pos.y), num + 1, vis, part)
   let #(down, vis) = dfs(map, Pos(pos.x, pos.y + 1), num + 1, vis, part)
