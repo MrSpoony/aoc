@@ -81,14 +81,14 @@ pub fn part2(input: String) {
   })
   |> list.fold(0, fn(acc, machine) {
     let #(button_a, button_b, prize) = machine
-    let numerator = button_a.y * prize.x - prize.y * button_a.x
-    let denominator = button_a.y * button_b.x - button_b.y * button_a.x
-    use <- bool.guard(numerator % denominator != 0, acc)
-    let m = numerator / denominator
-    let numerator = prize.x - button_b.x * m
-    let denominator = button_a.x
-    use <- bool.guard(numerator % denominator != 0, acc)
-    let n = numerator / denominator
+    let divmod = fn(n: Int, d: Int) { #(n / d, n % d) }
+    let #(m, modm) =
+      divmod(
+        button_a.y * prize.x - prize.y * button_a.x,
+        button_a.y * button_b.x - button_b.y * button_a.x,
+      )
+    let #(n, modn) = divmod(prize.x - button_b.x * m, button_a.x)
+    use <- bool.guard(modm != 0 && modn != 0, acc)
     acc + 3 * n + m
   })
 }
