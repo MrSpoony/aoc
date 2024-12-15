@@ -281,13 +281,12 @@ fn simulate_p2(grid: Dict(Pos, String), cur: Pos, dir: Dir) {
 
 pub fn part1(input: String) {
   let #(grid, start, moves) = parse_p1(input)
-  let #(grid, _) =
-    moves
-    |> list.fold(#(grid, start), fn(acc, dir) {
-      let #(grid, pos) = acc
-      simulate_p1(grid, pos, dir)
-    })
-  grid
+  moves
+  |> list.fold(#(grid, start), fn(acc, dir) {
+    let #(grid, pos) = acc
+    simulate_p1(grid, pos, dir)
+  })
+  |> pair.first
   |> dict.to_list
   |> list.filter_map(fn(x) {
     let #(pos, char) = x

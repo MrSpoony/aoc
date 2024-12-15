@@ -3,6 +3,7 @@ import gleam/dict.{type Dict}
 import gleam/int
 import gleam/io
 import gleam/list
+import gleam/pair
 import gleam/result
 import gleam/set.{type Set}
 import gleam/string
@@ -140,34 +141,32 @@ fn find_perimiter(
 
 pub fn part1(input: String) {
   let map = parse(input)
-  let #(res, _) =
-    map
-    |> dict.fold(#(0, set.new()), fn(acc, pos, char) {
-      let #(sum, vis) = acc
-      let #(area, peri, vis) = dfs_p1(map, pos, char, vis)
-      #(sum + area * peri, vis)
-    })
-  res
+  map
+  |> dict.fold(#(0, set.new()), fn(acc, pos, char) {
+    let #(sum, vis) = acc
+    let #(area, peri, vis) = dfs_p1(map, pos, char, vis)
+    #(sum + area * peri, vis)
+  })
+  |> pair.first
 }
 
 pub fn part2(input: String) {
   let map = parse(input)
-  let #(res, _) =
-    map
-    |> dict.fold(#(0, set.new()), fn(acc, pos, char) {
-      let #(sum, oldvis) = acc
-      let #(area, vis) = get_area(map, pos, char, oldvis)
-      // I know that this is very slow but I didn't want to come up
-      // with a better alternative for the inner perimiters
-      let diff = set.difference(vis, oldvis)
-      let #(peri, _) =
-        diff
-        |> set.fold(#(0, set.new()), fn(acc, pos) {
-          let #(acc_peri, vis) = acc
-          let #(perimiter, vis) = find_perimiter(map, pos, char, vis)
-          #(acc_peri + perimiter, vis)
-        })
-      #(sum + area * peri, vis)
-    })
-  res
+  map
+  |> dict.fold(#(0, set.new()), fn(acc, pos, char) {
+    let #(sum, oldvis) = acc
+    let #(area, vis) = get_area(map, pos, char, oldvis)
+    // I know that this is very slow but I didn't want to come up
+    // with a better alternative for the inner perimiters
+    let diff = set.difference(vis, oldvis)
+    let #(peri, _) =
+      diff
+      |> set.fold(#(0, set.new()), fn(acc, pos) {
+        let #(acc_peri, vis) = acc
+        let #(perimiter, vis) = find_perimiter(map, pos, char, vis)
+        #(acc_peri + perimiter, vis)
+      })
+    #(sum + area * peri, vis)
+  })
+  |> pair.first
 }

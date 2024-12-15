@@ -3,6 +3,7 @@ import gleam/int
 import gleam/io
 import gleam/list
 import gleam/option.{None, Some}
+import gleam/pair
 import gleam/result.{try}
 import gleam/set.{type Set}
 import gleam/string
@@ -117,18 +118,17 @@ fn reverse(map: Dict(a, Set(a))) {
 }
 
 fn toposort(map: Dict(Int, Set(Int)), ignore_except: Set(Int)) {
-  let #(toposort, _) =
-    map
-    |> dict.keys
-    |> list.fold(#([], set.new()), fn(acc, v) {
-      let #(res, vis) = acc
-      // WHY ARE THERE CYCLES IN THE COMPLETE RULESET? (e.g. 21->19->13->11->39->21)
-      let assert Ok(#(cur_res, vis, _)) =
-        dfs(map, ignore_except, vis, set.new(), v)
-      let cur_res = cur_res |> list.reverse
-      #(list.append(res, cur_res), vis)
-    })
-  toposort
+  map
+  |> dict.keys
+  |> list.fold(#([], set.new()), fn(acc, v) {
+    let #(res, vis) = acc
+    // WHY ARE THERE CYCLES IN THE COMPLETE RULESET? (e.g. 21->19->13->11->39->21)
+    let assert Ok(#(cur_res, vis, _)) =
+      dfs(map, ignore_except, vis, set.new(), v)
+    let cur_res = cur_res |> list.reverse
+    #(list.append(res, cur_res), vis)
+  })
+  |> pair.first
 }
 
 fn middle(a: List(a)) {
