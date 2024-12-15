@@ -1,6 +1,6 @@
 # Advent of code
 
-These are my advent of code solutions
+You can find my advent of code solutions here.
 
-I do these tasks because I want to learn some programming languages,
-therer is a high chance they are not pretty.
+I like to learn a new language while doing the tasks
+so the solutions are mostly "good enough" and not very pretty.
