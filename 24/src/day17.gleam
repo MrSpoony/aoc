@@ -64,10 +64,7 @@ fn operate(opcode: Int, operand: Int, mem: Memory) {
     1 -> Memory(..mem, b: int.bitwise_exclusive_or(b, get_num(operand, mem)))
     2 -> Memory(..mem, b: get_num(operand, mem) % 8)
     3 ->
-      case a == 0 {
-        True -> mem
-        False -> Memory(..mem, ip: get_num(operand, mem))
-      }
+      bool.guard(a == 0, mem, fn() { Memory(..mem, ip: get_num(operand, mem)) })
     4 -> Memory(..mem, b: int.bitwise_exclusive_or(b, c))
     5 -> Memory(..mem, out: [get_num(operand, mem) % 8, ..out])
     6 -> Memory(..mem, b: div())
@@ -77,8 +74,7 @@ fn operate(opcode: Int, operand: Int, mem: Memory) {
 }
 
 fn run(allops: List(Int), mem: Memory) {
-  let operations = allops |> list.drop(mem.ip)
-  case operations {
+  case allops |> list.drop(mem.ip) {
     [opcode, operand, ..] -> {
       let newmem = operate(opcode, operand, mem)
       let ipinc = bool.to_int(newmem.ip == mem.ip) * 2
@@ -88,31 +84,31 @@ fn run(allops: List(Int), mem: Memory) {
   }
 }
 
-// In my input every number depends on the last 7+3=10 bits,
+// In my input every number depends on the last 7+3=10 bits (after manual inspection),
 // This means it also affects the last 4 numbers, that must match
-fn find_a(allops: List(Int), mem: Memory, rest: List(Int), last: Int) {
+// So i try all combinations for the last 4 numbers, until they match,
+// and go on to the next number afterwards
+fn find_a(allops: List(Int), mem: Memory, rest: List(Int), last_a: Int) {
   case rest {
-    [] -> last
-    [head, second, third, fourth, ..rest] ->
-      find_a(
-        allops,
-        mem,
-        [second, third, fourth, ..rest],
+    [head, second, third, fourth, ..rest] -> {
+      let new_a =
         list.range(0, 8 * 8 * 8 * 8)
-          |> list.find_map(fn(x) {
-            let new_a = last * 8 + x
-            let newmem = run(allops, Memory(..mem, a: new_a))
-            let newout = newmem.out |> list.reverse |> list.take(4)
-            case newout == [fourth, third, second, head] {
-              True -> Ok(new_a)
-              False -> Error(Nil)
-            }
-          })
-          |> result.lazy_unwrap(fn() {
-            panic as "shouldn't happen (famous last words)"
-          }),
-      )
-    _ -> last
+        |> list.find_map(fn(candidate) {
+          let new_a = last_a * 8 + candidate
+          let newmem = run(allops, Memory(..mem, a: new_a))
+          let newout = newmem.out |> list.reverse |> list.take(4)
+          case newout == [fourth, third, second, head] {
+            True -> Ok(new_a)
+            False -> Error(Nil)
+          }
+        })
+        |> result.lazy_unwrap(fn() {
+          panic as "shouldn't happen (famous last words)"
+        })
+      find_a(allops, mem, [second, third, fourth, ..rest], new_a)
+    }
+    // Last 3 numbers were already matched
+    _ -> last_a
   }
 }
 
