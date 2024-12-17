@@ -41,7 +41,7 @@ fn parse(input: String) {
 
 fn get_num(operand: Int, mem: Memory) {
   case operand {
-    0 | 1 | 2 | 3 | 7 -> operand
+    0 | 1 | 2 | 3 -> operand
     4 -> mem.a
     5 -> mem.b
     6 -> mem.c
@@ -51,24 +51,15 @@ fn get_num(operand: Int, mem: Memory) {
 
 fn operate(opcode: Int, operand: Int, mem: Memory) {
   let Memory(a, b, c, _, out) = mem
-  let div = fn() {
-    a
-    / {
-      int.power(2, get_num(operand, mem) |> int.to_float)
-      |> result.unwrap(0.0)
-      |> float.round
-    }
-  }
   case opcode {
-    0 -> Memory(..mem, a: div())
-    1 -> Memory(..mem, b: int.bitwise_exclusive_or(b, get_num(operand, mem)))
+    0 -> Memory(..mem, a: int.bitwise_shift_right(a, get_num(operand, mem)))
+    1 -> Memory(..mem, b: int.bitwise_exclusive_or(b, operand))
     2 -> Memory(..mem, b: get_num(operand, mem) % 8)
-    3 ->
-      bool.guard(a == 0, mem, fn() { Memory(..mem, ip: get_num(operand, mem)) })
+    3 -> bool.guard(a == 0, mem, fn() { Memory(..mem, ip: operand) })
     4 -> Memory(..mem, b: int.bitwise_exclusive_or(b, c))
     5 -> Memory(..mem, out: [get_num(operand, mem) % 8, ..out])
-    6 -> Memory(..mem, b: div())
-    7 -> Memory(..mem, c: div())
+    6 -> Memory(..mem, b: int.bitwise_shift_right(a, get_num(operand, mem)))
+    7 -> Memory(..mem, c: int.bitwise_shift_right(a, get_num(operand, mem)))
     _ -> panic as "only accepts 3-bit numbers"
   }
 }
@@ -127,3 +118,23 @@ pub fn part2(input: String) {
     == program
   a
 }
+// Program: 2,4,1,2,7,5,4,3,0,3,1,7,5,5,3,0
+//
+// for (ll A = A; A > 0; A /= 8) {
+//   ll B = A % 8
+//   ll B = B ^ 2
+//   ll C = A >> B
+//   ll B = B^C
+//   ll B = B^7
+//   printf(B % 8)
+// }
+//
+// for (ll A = A; A > 0; A /= 8) {
+//   ll B = A % 8
+//   ll B = B ^ 2
+//   printf((((B ^ (A >> B)) ^ 7) % 3)
+//                       ^ could be max 7
+//                         but I only need last 3 bits
+//                         using 7+3 = 10 last bits of A
+//                         affects last 4 numbers
+// }

@@ -22,14 +22,6 @@ pub fn part1_test() {
 }
 
 pub fn part2_test() {
-  day17.part2(
-    "
-Register A: 2024
-Register B: 0
-Register C: 0
-
-Program: 0,3,5,4,3,0
-",
-  )
+  day17.part2(example_p2)
   |> should.equal(117_440)
 }
