@@ -18,8 +18,8 @@ pub fn main() {
 fn parse(input: String) {
   let update = fn(a, b) {
     case a {
-      None -> [b]
-      Some(bs) -> [b, ..bs]
+      None -> set.from_list([b])
+      Some(bs) -> bs |> set.insert(b)
     }
   }
   input
@@ -31,9 +31,13 @@ fn parse(input: String) {
   })
 }
 
+fn get_c(g: Dict(String, Set(String)), v: String) {
+  g |> dict.get(v) |> result.unwrap([] |> set.from_list)
+}
+
 // https://en.wikipedia.org/wiki/Bron%E2%80%93Kerbosch_algorithm
 fn bron_kerbosch(
-  g: Dict(String, List(String)),
+  g: Dict(String, Set(String)),
   r: Set(String),
   p: Set(String),
   x: Set(String),
@@ -42,11 +46,11 @@ fn bron_kerbosch(
   let assert Ok(pivot) = p |> set.union(x) |> set.to_list |> list.first
   let #(_, _, res) =
     p
-    |> set.drop(g |> dict.get(pivot) |> result.unwrap([]))
+    |> set.drop(g |> get_c(pivot) |> set.to_list)
     |> set.to_list
     |> list.fold(#(p, x, set.new()), fn(acc, v) {
       let #(p, x, best) = acc
-      let v_c = g |> dict.get(v) |> result.unwrap([]) |> set.from_list
+      let v_c = g |> get_c(v)
       let other_best =
         bron_kerbosch(
           g,
@@ -70,12 +74,11 @@ pub fn part1(input: String) {
   g
   |> dict.fold([], fn(acc, a, a_c) {
     a_c
-    |> list.fold(acc, fn(acc, b) {
+    |> set.fold(acc, fn(acc, b) {
       g
-      |> dict.get(b)
-      |> result.unwrap([])
-      |> list.fold(acc, fn(acc, c) {
-        case g |> dict.get(c) |> result.unwrap([]) |> list.contains(a) {
+      |> get_c(b)
+      |> set.fold(acc, fn(acc, c) {
+        case g |> get_c(c) |> set.contains(a) {
           True -> [[a, b, c], ..acc]
           False -> acc
         }
