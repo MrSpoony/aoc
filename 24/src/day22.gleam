@@ -35,7 +35,7 @@ pub fn part1(input: String) {
 }
 
 pub fn part2(input: String) {
-  let digits_with_diffs =
+  let _digits_with_diffs =
     input
     |> string.trim
     |> string.split("\n")
