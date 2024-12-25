@@ -10,7 +10,6 @@ import simplifile
 pub fn main() {
   let assert Ok(input) = simplifile.read("inputs/input25.txt")
   part1(input) |> int.to_string |> io.println
-  part2(input) |> int.to_string |> io.println
 }
 
 fn parse(input: String) {
